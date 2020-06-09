@@ -1,0 +1,5 @@
+Datasets,Trading days,Start date,End date
+Total data-set,1075,03/01/2011,13/04/2015
+Training data-set,502,03/01/2011,31/12/2012
+Test data-set,252,02/01/2013,31/12/2013
+Out-of-sample data-set,321,02/01/2014,13/04/2015
