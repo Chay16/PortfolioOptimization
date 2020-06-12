@@ -163,7 +163,7 @@ class Model:
         self.trainMAE = mean_absolute_error(train_targets, train_preds)
         self.validRMSE = mean_squared_error(valid_targets, valid_preds)
         self.validMAE = mean_absolute_error(valid_targets, valid_preds)
-        time.sleep(2)
+        
         print("Train RSME : {:.4f} | Train MAE : {:.4f}".format(self.trainRMSE, self.trainMAE))
         print("Valid RSME : {:.4f} | Valid MAE : {:.4f}".format(self.validRMSE, self.validMAE))
         
@@ -179,5 +179,5 @@ class Model:
         
         self.testRMSE = mean_squared_error(targets, preds)
         self.testMAE = mean_absolute_error(targets, preds)
-        time.sleep(2)
+
         print("RSME : {:.4f} | MAE : {:.4f}".format(self.testRMSE, self.testMAE))
