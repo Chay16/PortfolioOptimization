@@ -44,6 +44,12 @@ class PSN(torch.nn.Module):
         return x
 
 # General Model Class to regroup all features needed
+# Usage example :
+# modelMLP = Model("MLP")
+# modelMLP.setup(5, 4, 1)
+# modelMLP.train(trainLoader, validLoader)
+# modelMLP.evaluate(testLoader)
+
 class Model:
     def __init__(self, NNtype):
         self.NNtype = NNtype
