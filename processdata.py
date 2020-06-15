@@ -28,12 +28,22 @@ def load_and_merge(spy_path, dia_path, qqq_path):
     return df
 
 def compute_return(df):
+    df['Return'] = np.log(df['Adj Close']) - np.log(df['Adj Close'].shift(periods=1))
     pass
 
 def compute_stats(df):
     pass
 
 def train_val_test_split(df):
+    # set date column as index
+    df['Date'] = pd.to_datetime(df['Date'])
+    df.set_index('Date', inplace=True)
+    
+    # keeping only the correct date 03/01/2011 to 13/04/2015
+    Total_df = df.loc[('2011-01-03' <= df.index) & (df.index <= '2015-04-13')]
+    Training_df = df.loc[('2011-01-03' <= df.index) & (df.index <= '2012-12-31')]
+    Test_df = df.loc[('2013-01-02' <= df.index) & (df.index <= '2013-12-31')]
+    Out_of_sample_df = df.loc[('2014-01-02' <= df.index) & (df.index <= '2015-04-13')]
     pass
 
 def save_dataset(ds, filename):
