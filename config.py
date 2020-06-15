@@ -50,7 +50,7 @@ train_parameters = {
             "momentum" : 0.5,
             "epochs" : 40000,
             "weights_init" : "norm",
-            "input_size" : 7,
+            "input_size" : 9,
             "hidden_size" : 5,
             "output_size" : 1,
         }

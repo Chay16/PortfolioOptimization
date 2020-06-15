@@ -41,7 +41,6 @@ class PSN(torch.nn.Module):
         x = self.fc(x)
         x = torch.sum(x, axis=1)
         x = torch.sigmoid(x)
-        
         return x
 
 # General Model Class to regroup all features needed
@@ -159,6 +158,7 @@ class Model:
         with torch.no_grad():
             for features, target in trainloader:
                 outputs = self.model(features)
+                print(outputs)
                 train_preds += outputs.numpy().T.tolist()[0]
                 train_targets += target.numpy().tolist()
             for features, target in validloader:
@@ -173,8 +173,8 @@ class Model:
         
         self.validRMSE = mean_squared_error(valid_targets, valid_preds)
         self.validMAE = mean_absolute_error(valid_targets, valid_preds)
-        self.validMAPE = mean_absolute_percentage_error(np.array(train_targets), np.array(train_preds))
-        self.validTheilU = theilU(np.array(train_targets), np.array(train_preds))
+        self.validMAPE = mean_absolute_percentage_error(np.array(valid_targets), np.array(valid_preds))
+        self.validTheilU = theilU(np.array(valid_targets), np.array(valid_preds))
         
         print("Train MAE : {:.4f} | Train MAPE  : {:.4f} | Train RSME : {:.4f} | Train Theil-U {:.4f}".format(self.trainMAE, self.trainMAPE, self.trainRMSE, self.trainTheilU))
         print("Valid MAE : {:.4f} | Valid MAPE  : {:.4f} | Valid RSME : {:.4f} | Valid Theil-U {:.4f}".format(self.validMAE, self.validMAPE, self.validRMSE, self.validTheilU))
@@ -189,9 +189,9 @@ class Model:
                 preds += outputs.numpy().T.tolist()[0]
                 targets += target.numpy().tolist()
         
-        self.testRMSE = mean_squared_error(valid_targets, valid_preds)
-        self.testMAE = mean_absolute_error(valid_targets, valid_preds)
-        self.testMAPE = mean_absolute_percentage_error(np.array(train_targets), np.array(train_preds))
-        self.testTheilU = theilU(np.array(train_targets), np.array(train_preds))
+        self.testRMSE = mean_squared_error(targets, preds)
+        self.testMAE = mean_absolute_error(targets, preds)
+        self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
+        self.testTheilU = theilU(np.array(targets), np.array(preds))
 
         print("Test MAE : {:.4f} | Test MAPE  : {:.4f} | Test RSME : {:.4f} | Test Theil-U {:.4f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
