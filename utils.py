@@ -5,8 +5,9 @@ from torch import Tensor
 from torch.utils.data import TensorDataset, DataLoader
 
 def save_file(data, filename):
-    with open(filename+'.pkl', 'wb') as f:
+    with open(filename, 'wb') as f:
         pickle.dump(data, f, pickle.HIGHEST_PROTOCOL)
+    print("{} saved".format(filename))
 
 def load_file(filename):
     with open(filename, "rb") as f:
