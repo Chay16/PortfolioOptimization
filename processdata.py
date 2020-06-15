@@ -24,12 +24,11 @@ def load_and_merge(spy_path, dia_path, qqq_path):
     
     dfs = [dia_df, qqq_df, spy_df]
     df = reduce(lambda left,right: pd.merge(left,right,on='Date'), dfs)
-    
     return df
 
 def compute_return(df):
     df['Return'] = np.log(df['Adj Close']) - np.log(df['Adj Close'].shift(periods=1))
-    pass
+    return df
 
 def compute_stats(df):
     pass
