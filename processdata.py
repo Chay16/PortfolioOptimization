@@ -28,6 +28,10 @@ def load_and_merge(spy_path, dia_path, qqq_path):
 
 def compute_return(df):
     df['Return'] = np.log(df['Adj Close']) - np.log(df['Adj Close'].shift(periods=1))
+    
+    for k in range(1,13):
+        df['Return' + str(k)] = df['Return'].shift(periods=k)
+        
     return df
 
 def compute_stats(df):
