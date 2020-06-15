@@ -3,6 +3,7 @@ import numpy as np
 import pandas as pd
 import torch
 from sklearn.metrics import mean_absolute_error, mean_squared_error
+from utils import mean_absolute_percentage_error, theilU
     
 # RNN and PSN implementation
 class RNN(torch.nn.Module):
@@ -167,11 +168,16 @@ class Model:
         
         self.trainRMSE = mean_squared_error(train_targets, train_preds)
         self.trainMAE = mean_absolute_error(train_targets, train_preds)
+        self.trainMAPE = mean_absolute_percentage_error(np.array(train_targets), np.array(train_preds))
+        self.trainTheilU = theilU(np.array(train_targets), np.array(train_preds))
+        
         self.validRMSE = mean_squared_error(valid_targets, valid_preds)
         self.validMAE = mean_absolute_error(valid_targets, valid_preds)
+        self.validMAPE = mean_absolute_percentage_error(np.array(train_targets), np.array(train_preds))
+        self.validTheilU = theilU(np.array(train_targets), np.array(train_preds))
         
-        print("Train RSME : {:.4f} | Train MAE : {:.4f}".format(self.trainRMSE, self.trainMAE))
-        print("Valid RSME : {:.4f} | Valid MAE : {:.4f}".format(self.validRMSE, self.validMAE))
+        print("Train MAE : {:.4f} | Train MAPE  : {:.4f} | Train RSME : {:.4f} | Train Theil-U {:.4f}".format(self.trainMAE, self.trainMAPE, self.trainRMSE, self.trainTheilU))
+        print("Valid MAE : {:.4f} | Valid MAPE  : {:.4f} | Valid RSME : {:.4f} | Valid Theil-U {:.4f}".format(self.validMAE, self.validMAPE, self.validRMSE, self.validTheilU))
         
     def evaluate(self, dataloader):
         
@@ -183,7 +189,9 @@ class Model:
                 preds += outputs.numpy().T.tolist()[0]
                 targets += target.numpy().tolist()
         
-        self.testRMSE = mean_squared_error(targets, preds)
-        self.testMAE = mean_absolute_error(targets, preds)
+        self.testRMSE = mean_squared_error(valid_targets, valid_preds)
+        self.testMAE = mean_absolute_error(valid_targets, valid_preds)
+        self.testMAPE = mean_absolute_percentage_error(np.array(train_targets), np.array(train_preds))
+        self.testTheilU = theilU(np.array(train_targets), np.array(train_preds))
 
-        print("RSME : {:.4f} | MAE : {:.4f}".format(self.testRMSE, self.testMAE))
+        print("Test MAE : {:.4f} | Test MAPE  : {:.4f} | Test RSME : {:.4f} | Test Theil-U {:.4f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
