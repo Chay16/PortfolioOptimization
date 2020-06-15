@@ -26,11 +26,6 @@ def load_and_merge(spy_path, dia_path, qqq_path):
     dfs = [dia_df, qqq_df, spy_df]
     df = reduce(lambda left,right: pd.merge(left,right,on='Date'), dfs)
     return df
-    
-def compute_return_bda(df):
-    df['Return'] = np.log(df['Adj Close']) - np.log(df['Adj Close'].shift(periods=1))
-    for k in range(1,13):
-        df['Return' + "_" + str(k)] = df['Return'].shift(periods=k)
 
 def load(spy_path, dia_path, qqq_path):
     spy_df = pd.read_csv(args.spy).drop(columns=['Open','High','Low','Close','Volume'])
@@ -38,14 +33,8 @@ def load(spy_path, dia_path, qqq_path):
     qqq_df = pd.read_csv(args.qqq).drop(columns=['Open','High','Low','Close','Volume'])
     return spy_df, dia_df, qqq_df
 
-def compute_return_chay(df):
+def compute_return(df):
     df['Return'] = np.log(df['Adj Close']) - np.log(df['Adj Close'].shift(periods=1))
-    
-    """
-    for k in range(1,13):
-        df['Return' + str(k)] = df['Return'].shift(periods=k)
-    
-    """ 
     return df
 
 def compute_stats(df):
@@ -69,14 +58,48 @@ def train_val_test_split(df):
     # keeping only the correct date 03/01/2011 to 13/04/2015
     Total_df = df.loc[(cfg.TRAIN_START_DATE <= df.index) & (df.index <= cfg.TEST_STOP_DATE)]
     Training_df = df.loc[(cfg.TRAIN_START_DATE <= df.index) & (df.index <= cfg.TRAIN_STOP_DATE)]
-    Test_df = df.loc[(cfg.VAL_START_DATE <= df.index) & (df.index <= cfg.VAL_START_DATE)]
-    Out_of_sample_df = df.loc[(cfg.TEST_START_DATE <= df.index) & (df.index <= cfg.VAL_START_DATE)]
+    Test_df = df.loc[(cfg.VAL_START_DATE <= df.index) & (df.index <= cfg.VAL_STOP_DATE)]
+    Out_of_sample_df = df.loc[(cfg.TEST_START_DATE <= df.index) & (df.index <= cfg.TEST_STOP_DATE)]
     return Total_df, Training_df, Test_df, Out_of_sample_df
 
-def save_dataset(ds, filename):
-    with open(filename+'.pkl', 'wb') as f:
-        pickle.dump(ds, f, pickle.HIGHEST_PROTOCOL)
-    print("{} saved".format(filename))
+def format_datasets(spydf, diadf, qqqdf):
+    for n in ["MLP", "RNN", "PSN"]:
+        
+        tmp_spydf = spydf.copy()
+        tmp_diadf = diadf.copy()
+        tmp_qqqdf = qqqdf.copy()
+        
+        for i in cfg.SPYfeatures[n]:
+            tmp_spydf['Return_'+str(i)] = tmp_spydf.Return.shift(i)
+        for i in cfg.DIAfeatures[n]:
+            tmp_diadf['Return_'+str(i)] = tmp_diadf.Return.shift(i)
+        for i in cfg.QQQfeatures[n]:
+            tmp_qqqdf['Return_'+str(i)] = tmp_qqqdf.Return.shift(i)
+        
+        tmp_spydf['Target'] = tmp_spydf.Return
+        tmp_diadf['Target'] = tmp_diadf.Return
+        tmp_qqqdf['Target'] = tmp_qqqdf.Return
+        
+        SPY_Total_df, SPY_Training_df, SPY_Test_df, SPY_Out_of_sample_df = train_val_test_split(tmp_spydf)
+        DIA_Total_df, DIA_Training_df, DIA_Test_df, DIA_Out_of_sample_df = train_val_test_split(tmp_diadf)
+        QQQ_Total_df, QQQ_Training_df, QQQ_Test_df, QQQ_Out_of_sample_df = train_val_test_split(tmp_qqqdf)
+
+        
+        os.makedirs(os.path.join("data", "SPY", n), exist_ok=True)
+        os.makedirs(os.path.join("data", "DIA", n), exist_ok=True)
+        os.makedirs(os.path.join("data", "QQQ", n), exist_ok=True)
+        
+        utils.save_file(SPY_Training_df, os.path.join("data", "SPY", n, "Train.pkl"))
+        utils.save_file(SPY_Test_df, os.path.join("data", "SPY", n, "Valid.pkl"))
+        utils.save_file(SPY_Out_of_sample_df, os.path.join("data", "SPY", n, "Test.pkl"))
+        
+        utils.save_file(DIA_Training_df, os.path.join("data", "DIA", n, "Train.pkl"))
+        utils.save_file(DIA_Test_df, os.path.join("data", "DIA", n, "Valid.pkl"))
+        utils.save_file(DIA_Out_of_sample_df, os.path.join("data", "DIA", n, "Test.pkl"))
+        
+        utils.save_file(QQQ_Training_df, os.path.join("data", "QQQ", n, "Train.pkl"))
+        utils.save_file(QQQ_Test_df, os.path.join("data", "QQQ", n, "Valid.pkl"))
+        utils.save_file(QQQ_Out_of_sample_df, os.path.join("data", "QQQ", n, "Test.pkl"))
 
 if __name__ == "__main__":
     
@@ -86,13 +109,5 @@ if __name__ == "__main__":
     diadf = compute_return(diadf)
     qqqdf = compute_return(qqqdf)
     
-    networks = ["MLP", "RNN", "PSN"]
-    
-    for n in networks:
-        
-    
-    
-    
-    
-    
-    
+    # Create and Save Datasets
+    format_datasets(spydf, diadf, qqqdf)
