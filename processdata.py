@@ -15,9 +15,9 @@ parser.add_argument("-qqq", type=str, help="Path to the raw QQQ data file", requ
 args = parser.parse_args()
 
 def load_and_merge(spy_path, dia_path, qqq_path):
-    spy_df = pd.read_csv(args.spy).drop(columns=['Open','High','Low','Adj Close','Volume'])
-    dia_df = pd.read_csv(args.dia).drop(columns=['Open','High','Low','Adj Close','Volume'])
-    qqq_df = pd.read_csv(args.qqq).drop(columns=['Open','High','Low','Adj Close','Volume'])
+    spy_df = pd.read_csv(args.spy).drop(columns=['Open','High','Low','Close','Volume'])
+    dia_df = pd.read_csv(args.dia).drop(columns=['Open','High','Low','Close','Volume'])
+    qqq_df = pd.read_csv(args.qqq).drop(columns=['Open','High','Low','Close','Volume'])
     
     spy_df.columns=spy_df.columns.map(lambda x : x+'_spy' if x !='Date' else x)
     dia_df.columns=dia_df.columns.map(lambda x : x+'_dia' if x !='Date' else x)
@@ -27,10 +27,25 @@ def load_and_merge(spy_path, dia_path, qqq_path):
     df = reduce(lambda left,right: pd.merge(left,right,on='Date'), dfs)
     return df
     
-def compute_return(df):
+def compute_return_bda(df):
     df['Return'] = np.log(df['Adj Close']) - np.log(df['Adj Close'].shift(periods=1))
     for k in range(1,13):
         df['Return' + "_" + str(k)] = df['Return'].shift(periods=k)
+
+def load(spy_path, dia_path, qqq_path):
+    spy_df = pd.read_csv(args.spy).drop(columns=['Open','High','Low','Close','Volume'])
+    dia_df = pd.read_csv(args.dia).drop(columns=['Open','High','Low','Close','Volume'])
+    qqq_df = pd.read_csv(args.qqq).drop(columns=['Open','High','Low','Close','Volume'])
+    return spy_df, dia_df, qqq_df
+
+def compute_return_chay(df):
+    df['Return'] = np.log(df['Adj Close']) - np.log(df['Adj Close'].shift(periods=1))
+    
+    """
+    for k in range(1,13):
+        df['Return' + str(k)] = df['Return'].shift(periods=k)
+    
+    """ 
     return df
 
 def compute_stats(df):
@@ -52,11 +67,11 @@ def train_val_test_split(df):
     df.set_index('Date', inplace=True)
     
     # keeping only the correct date 03/01/2011 to 13/04/2015
-    Total_df = df.loc[('2011-01-03' <= df.index) & (df.index <= '2015-04-13')]
-    Training_df = df.loc[('2011-01-03' <= df.index) & (df.index <= '2012-12-31')]
-    Test_df = df.loc[('2013-01-02' <= df.index) & (df.index <= '2013-12-31')]
-    Out_of_sample_df = df.loc[('2014-01-02' <= df.index) & (df.index <= '2015-04-13')]
-    pass
+    Total_df = df.loc[(cfg.TRAIN_START_DATE <= df.index) & (df.index <= cfg.TEST_STOP_DATE)]
+    Training_df = df.loc[(cfg.TRAIN_START_DATE <= df.index) & (df.index <= cfg.TRAIN_STOP_DATE)]
+    Test_df = df.loc[(cfg.VAL_START_DATE <= df.index) & (df.index <= cfg.VAL_START_DATE)]
+    Out_of_sample_df = df.loc[(cfg.TEST_START_DATE <= df.index) & (df.index <= cfg.VAL_START_DATE)]
+    return Total_df, Training_df, Test_df, Out_of_sample_df
 
 def save_dataset(ds, filename):
     with open(filename+'.pkl', 'wb') as f:
@@ -65,8 +80,17 @@ def save_dataset(ds, filename):
 
 if __name__ == "__main__":
     
-    df = load_and_merge(args.spy, args.dia, args.qqq)
-    print(df)
+    spydf, diadf, qqqdf = load(args.spy, args.dia, args.qqq)
+    
+    spydf = compute_return(spydf)
+    diadf = compute_return(diadf)
+    qqqdf = compute_return(qqqdf)
+    
+    networks = ["MLP", "RNN", "PSN"]
+    
+    for n in networks:
+        
+    
     
     
     
