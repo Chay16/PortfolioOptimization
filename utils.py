@@ -36,3 +36,11 @@ def DataFrame2DataLoader(df, features_col, target_col, batch_size=4, normalize=F
     dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
     
     return dataloader
+
+# Jarque-Bera result, null hypothesis: the serie follows a normal distribution
+def jarque_bera_p_value(x):
+    return (list(jarque_bera(x))[1]) #put 0 to get the t stat
+
+# Augmented Dickey-Fuller, null hypothesis: the serie is stationnary
+def adf_p_value(x):
+    return (list(adfuller(x))[1]) #put 0 to get the t stat
