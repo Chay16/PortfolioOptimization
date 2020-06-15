@@ -158,7 +158,6 @@ class Model:
         with torch.no_grad():
             for features, target in trainloader:
                 outputs = self.model(features)
-                print(outputs)
                 train_preds += outputs.numpy().T.tolist()[0]
                 train_targets += target.numpy().tolist()
             for features, target in validloader:
