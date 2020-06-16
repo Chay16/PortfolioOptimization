@@ -98,8 +98,8 @@ train_parameters = {
             "momentum" : 0.005,
             "epochs" : 30000,
             "weights_init" : "norm",
-            "input_size" : 7,
-            "hidden_size" : 9,
+            "input_size" : 9,
+            "hidden_size" : 8,
             "output_size" : 1,
         },
         
