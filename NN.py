@@ -19,13 +19,13 @@ class RNN(torch.nn.Module):
         self.fc = torch.nn.Linear(self.hidden_size, self.output_size)
         
     def forward(self, x):
-        batch_size = x.size(0)
+        batch_size = x.size(1)
         h0 = torch.zeros(self.n_layers, batch_size, self.hidden_size)
         out, hidden = self.rnn(x, h0)
         out = out.contiguous().view(-1, self.hidden_size)
         out = self.fc(out)
         
-        return out, hidden
+        return out
 
 class PSN(torch.nn.Module):
     def __init__(self, input_size, hidden_size, output_size):
@@ -122,6 +122,10 @@ class Model:
             train_loss, val_loss = [], []
 
             for features, target in trainloader:
+                
+                if self.NNtype == "RNN":
+                    features = features.view(1, features.size(0), features.size(1))
+                
                 self.optimizer.zero_grad()
 
                 outputs = self.model(features)
@@ -134,6 +138,10 @@ class Model:
             self.model.eval()
             with torch.no_grad():
                 for features, target in validloader:
+                    
+                    if self.NNtype == "RNN":
+                        features = features.view(1, features.size(0), features.size(1))
+                    
                     outputs = self.model(features)
                     loss = self.loss_fn(outputs, target.view(-1,1))
 
@@ -143,8 +151,8 @@ class Model:
             self.valid_losses.append(np.mean(val_loss))
             
             if verbose:
-                if (epoch+1) % 1000 == 0 or epoch+1 == 1:
-                    printtext = "[{}] Epoch {}/{} - Train Loss : {:.4f} / Val Loss : {:.4f}"
+                if (epoch+1) % 100 == 0 or epoch+1 == 1:
+                    printtext = "[{}] Epoch {}/{} - Train Loss : {:.6f} / Val Loss : {:.6f}"
                     print(printtext.format(time.strftime("%M:%S", time.gmtime(time.time()-start_time)),
                                            epoch + 1,
                                            self.epochs,
@@ -157,12 +165,22 @@ class Model:
         self.model.eval()
         with torch.no_grad():
             for features, target in trainloader:
+                if self.NNtype == "RNN":
+                        features = features.view(1, features.size(0), features.size(1))
                 outputs = self.model(features)
-                train_preds += outputs.numpy().T.tolist()[0]
+                if self.NNtype == "PSN":
+                    train_preds += outputs.numpy().tolist()
+                else:
+                    train_preds += outputs.numpy().T.tolist()[0]
                 train_targets += target.numpy().tolist()
             for features, target in validloader:
+                if self.NNtype == "RNN":
+                        features = features.view(1, features.size(0), features.size(1))
                 outputs = self.model(features)
-                valid_preds += outputs.numpy().T.tolist()[0]
+                if self.NNtype == "PSN":
+                    valid_preds += outputs.numpy().tolist()
+                else:
+                    valid_preds += outputs.numpy().T.tolist()[0]
                 valid_targets += target.numpy().tolist()
         
         self.trainRMSE = mean_squared_error(train_targets, train_preds)
@@ -184,8 +202,13 @@ class Model:
         self.model.eval()
         with torch.no_grad():
             for features, target in dataloader:
+                if self.NNtype == "RNN":
+                        features = features.view(1, features.size(0), features.size(1))
                 outputs = self.model(features)
-                preds += outputs.numpy().T.tolist()[0]
+                if self.NNtype == "PSN":
+                    preds += outputs.numpy().tolist()
+                else:
+                    preds += outputs.numpy().T.tolist()[0]
                 targets += target.numpy().tolist()
         
         self.testRMSE = mean_squared_error(targets, preds)
@@ -193,4 +216,4 @@ class Model:
         self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
         self.testTheilU = theilU(np.array(targets), np.array(preds))
 
-        print("Test MAE : {:.4f} | Test MAPE  : {:.4f} | Test RSME : {:.4f} | Test Theil-U {:.4f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
+        print("Test MAE : {:.6f} | Test MAPE  : {:.6f} | Test RSME : {:.6f} | Test Theil-U {:.6f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
