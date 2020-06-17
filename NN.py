@@ -67,6 +67,7 @@ class Model:
         self.train_losses = None
         self.valid_losses = None
         
+        
     def setup(self, input_size, hidden_size, output_size=1, epochs=10000, optim_type="SGD", lr=0.001, momentum=0.001):
         
         self.input_size = input_size
@@ -196,6 +197,7 @@ class Model:
         print("Train MAE : {:.4f} | Train MAPE  : {:.4f} | Train RSME : {:.4f} | Train Theil-U {:.4f}".format(self.trainMAE, self.trainMAPE, self.trainRMSE, self.trainTheilU))
         print("Valid MAE : {:.4f} | Valid MAPE  : {:.4f} | Valid RSME : {:.4f} | Valid Theil-U {:.4f}".format(self.validMAE, self.validMAPE, self.validRMSE, self.validTheilU))
         
+        
     def evaluate(self, dataloader):
         
         preds, targets = [], []
@@ -217,3 +219,28 @@ class Model:
         self.testTheilU = theilU(np.array(targets), np.array(preds))
 
         print("Test MAE : {:.6f} | Test MAPE  : {:.6f} | Test RSME : {:.6f} | Test Theil-U {:.6f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
+        
+        
+    # evaluate function but with a return instead of a print
+    def Getevaluation(self, dataloader):
+        
+        preds, targets = [], []
+        self.model.eval()
+        with torch.no_grad():
+            for features, target in dataloader:
+                if self.NNtype == "RNN":
+                    features = features.view(1, features.size(0), features.size(1))
+                outputs = self.model(features)
+                if self.NNtype == "PSN":
+                    preds += outputs.numpy().tolist()
+                else:
+                    preds += outputs.numpy().T.tolist()[0]
+                targets += target.numpy().tolist()
+        
+        self.testRMSE = mean_squared_error(targets, preds)
+        self.testMAE = mean_absolute_error(targets, preds)
+        self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
+        self.testTheilU = theilU(np.array(targets), np.array(preds))
+        
+        evaluation = {"MAE":self.testMAE, "MAPE":self.testMAPE, "RMSE":self.testRMSE, "THEIL-U":self.testTheilU}
+        return (evaluation)
