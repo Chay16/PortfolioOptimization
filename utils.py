@@ -3,6 +3,8 @@ import numpy as np
 import pandas as pd
 from torch import Tensor
 from torch.utils.data import TensorDataset, DataLoader
+from scipy.stats import jarque_bera
+from statsmodels.tsa.stattools import adfuller
 
 def save_file(data, filename):
     with open(filename, 'wb') as f:
