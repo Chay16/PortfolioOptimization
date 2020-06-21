@@ -167,7 +167,7 @@ class Model:
         with torch.no_grad():
             for features, target in trainloader:
                 if self.NNtype == "RNN":
-                        features = features.view(1, features.size(0), features.size(1))
+                    features = features.view(1, features.size(0), features.size(1))
                 outputs = self.model(features)
                 if self.NNtype == "PSN":
                     train_preds += outputs.numpy().tolist()
@@ -176,7 +176,7 @@ class Model:
                 train_targets += target.numpy().tolist()
             for features, target in validloader:
                 if self.NNtype == "RNN":
-                        features = features.view(1, features.size(0), features.size(1))
+                    features = features.view(1, features.size(0), features.size(1))
                 outputs = self.model(features)
                 if self.NNtype == "PSN":
                     valid_preds += outputs.numpy().tolist()
@@ -220,27 +220,3 @@ class Model:
 
         print("Test MAE : {:.6f} | Test MAPE  : {:.6f} | Test RSME : {:.6f} | Test Theil-U {:.6f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
         
-        
-    # evaluate function but with a return instead of a print
-    def Getevaluation(self, dataloader):
-        
-        preds, targets = [], []
-        self.model.eval()
-        with torch.no_grad():
-            for features, target in dataloader:
-                if self.NNtype == "RNN":
-                    features = features.view(1, features.size(0), features.size(1))
-                outputs = self.model(features)
-                if self.NNtype == "PSN":
-                    preds += outputs.numpy().tolist()
-                else:
-                    preds += outputs.numpy().T.tolist()[0]
-                targets += target.numpy().tolist()
-        
-        self.testRMSE = mean_squared_error(targets, preds)
-        self.testMAE = mean_absolute_error(targets, preds)
-        self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
-        self.testTheilU = theilU(np.array(targets), np.array(preds))
-        
-        evaluation = {"MAE":self.testMAE, "MAPE":self.testMAPE, "RMSE":self.testRMSE, "THEIL-U":self.testTheilU}
-        return (evaluation)
