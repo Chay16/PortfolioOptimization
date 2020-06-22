@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 import torch
 from sklearn.metrics import mean_absolute_error, mean_squared_error
-from utils import mean_absolute_percentage_error, theilU
+from utils import mean_absolute_percentage_error, theilU, PT_test
     
 # RNN and PSN implementation
 class RNN(torch.nn.Module):
@@ -205,7 +205,7 @@ class Model:
         with torch.no_grad():
             for features, target in dataloader:
                 if self.NNtype == "RNN":
-                        features = features.view(1, features.size(0), features.size(1))
+                    features = features.view(1, features.size(0), features.size(1))
                 outputs = self.model(features)
                 if self.NNtype == "PSN":
                     preds += outputs.numpy().tolist()
@@ -217,6 +217,30 @@ class Model:
         self.testMAE = mean_absolute_error(targets, preds)
         self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
         self.testTheilU = theilU(np.array(targets), np.array(preds))
+        self.testPT = PT_test(np.array(targets), np.array(preds))
 
         print("Test MAE : {:.6f} | Test MAPE  : {:.6f} | Test RSME : {:.6f} | Test Theil-U {:.6f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
+    
+    # this is just temporary
+    def Getevaluation(self, dataloader):
         
+        preds, targets = [], []
+        self.model.eval()
+        with torch.no_grad():
+            for features, target in dataloader:
+                if self.NNtype == "RNN":
+                    features = features.view(1, features.size(0), features.size(1))
+                outputs = self.model(features)
+                if self.NNtype == "PSN":
+                    preds += outputs.numpy().tolist()
+                else:
+                    preds += outputs.numpy().T.tolist()[0]
+                targets += target.numpy().tolist()
+        
+        self.testRMSE = mean_squared_error(targets, preds)
+        self.testMAE = mean_absolute_error(targets, preds)
+        self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
+        self.testTheilU = theilU(np.array(targets), np.array(preds))
+        self.testPT = PT_test(np.array(targets), np.array(preds))
+
+        return(preds, targets)
