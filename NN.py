@@ -39,7 +39,8 @@ class PSN(torch.nn.Module):
         
     def forward(self, x):
         x = self.fc(x)
-        x = torch.sum(x, axis=1)
+        #x = torch.sum(x, axis=1)
+        x = torch.prod(x ,1)
         x = torch.sigmoid(x)
         return x
 
