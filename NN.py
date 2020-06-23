@@ -221,7 +221,7 @@ class Model:
 
         print("Test MAE : {:.6f} | Test MAPE  : {:.6f} | Test RSME : {:.6f} | Test Theil-U {:.6f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
     
-    # this is just temporary
+    # to retrieve the prediction and the target values as list
     def Getevaluation(self, dataloader):
         
         preds, targets = [], []
