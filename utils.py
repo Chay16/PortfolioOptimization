@@ -210,3 +210,19 @@ def dm_test(actual_lst, pred1_lst, pred2_lst, h = 1, crit="MSE", power = 2):
     rt = dm_return(DM = DM_stat, p_value = p_value)
     
     return rt
+
+# Maximum Drawdown
+def MDD(df, column, window, everything=False):
+    # Calculate the max drawdown in the past window days for each day in the series.
+    # Use min_periods=1 if you want to let the first days data have an expanding window
+    Roll_Max = df[column].rolling(window, min_periods=1).max()
+    Daily_Drawdown = df[column]/Roll_Max - 1.0
+
+    # Next we calculate the minimum (negative) daily drawdown in that window.
+    # Again, use min_periods=1 if you want to allow the expanding window
+    Max_Daily_Drawdown = Daily_Drawdown.rolling(window, min_periods=1).min()
+    MDD = min(Max_Daily_Drawdown)
+
+    if everything:
+        return (Daily_Drawdown, Max_Daily_Drawdown, MDD)
+    return (MDD)
