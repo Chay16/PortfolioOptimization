@@ -199,7 +199,7 @@ class Model:
         print("Valid MAE : {:.4f} | Valid MAPE  : {:.4f} | Valid RSME : {:.4f} | Valid Theil-U {:.4f}".format(self.validMAE, self.validMAPE, self.validRMSE, self.validTheilU))
         
         
-    def evaluate(self, dataloader):
+    def evaluate(self, dataloader, mu, sigma):
         
         preds, targets = [], []
         self.model.eval()
@@ -214,18 +214,20 @@ class Model:
                     preds += outputs.numpy().T.tolist()[0]
                 targets += target.numpy().tolist()
         
+        targets = (targets + mu) * sigma
+        preds = (preds + mu) * sigma
+
         self.testRMSE = mean_squared_error(targets, preds)
         self.testMAE = mean_absolute_error(targets, preds)
         self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
         self.testTheilU = theilU(np.array(targets), np.array(preds))
         self.testPT = PT_test(np.array(targets), np.array(preds))
 
-        print("Test MAE : {:.6f} | Test MAPE  : {:.6f} | Test RSME : {:.6f} | Test Theil-U {:.6f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
+        print("Normalized Test MAE : {:.6f} | Test MAPE  : {:.6f} | Test RSME : {:.6f} | Test Theil-U {:.6f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
     
     # to retrieve the prediction and the target values as list
-    def Getevaluation(self, dataloader):
-        
-        preds, targets = [], []
+    def predict(self, dataloader, mu, sigma):
+        preds = []
         self.model.eval()
         with torch.no_grad():
             for features, target in dataloader:
@@ -236,12 +238,5 @@ class Model:
                     preds += outputs.numpy().tolist()
                 else:
                     preds += outputs.numpy().T.tolist()[0]
-                targets += target.numpy().tolist()
         
-        self.testRMSE = mean_squared_error(targets, preds)
-        self.testMAE = mean_absolute_error(targets, preds)
-        self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
-        self.testTheilU = theilU(np.array(targets), np.array(preds))
-        self.testPT = PT_test(np.array(targets), np.array(preds))
-
-        return(preds, targets)
+        return(preds)
