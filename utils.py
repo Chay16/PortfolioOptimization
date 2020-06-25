@@ -42,12 +42,18 @@ def DataFrame2DataLoader(df, features_col, target_col, batch_size=4, normalize=F
     return dataloader
 
 # Jarque-Bera result, null hypothesis: the serie follows a normal distribution
+def jarque_bera_t_stat(x):
+    return (list(jarque_bera(x))[0]) # t stat
+
 def jarque_bera_p_value(x):
-    return (list(jarque_bera(x))[1]) #put 0 to get the t stat
+    return (list(jarque_bera(x))[1]) # p value
 
 # Augmented Dickey-Fuller, null hypothesis: the serie is stationnary
+def adf_t_stat(x):
+    return (list(adfuller(x))[0]) # t stat
+
 def adf_p_value(x):
-    return (list(adfuller(x))[1]) #put 0 to get the t stat
+    return (list(adfuller(x))[1]) # p value
 
 # Pesaran-Timmermann test: null hypothesis: the model under study has no power on forecasting the relevant ETF return series
 def PT_test(y_true, y_pred):
