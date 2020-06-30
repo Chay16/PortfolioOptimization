@@ -82,6 +82,9 @@ def PT_test(y_true, y_pred):
     dyz[dyz < 0] = 0
     dyz[dyz > 0] = 1
     pyz = np.mean(dyz)
+    
+    if (v-w)**0.5 == 0:
+        return (50) 
 
     PT = (pyz - p)/(v-w)**0.5
     return(PT)
