@@ -37,18 +37,18 @@ def compute_return(df):
     df['Return'] = np.log(df['Adj Close']) - np.log(df['Adj Close'].shift(periods=1))
     return df
 
-def compute_stats(df):
-    Stats_df = pd.DataFrame({'Mean':df['Return'].mean(),
-                             'STD':df['Return'].std(),
-                             'Skew':df['Return'].skew(),
-#                              'Fisher_Kurtosis':kurtosis(df['Return'], fisher=True),
-                             'Pearson_Kurtosis':kurtosis(df['Return'], fisher=False),
-                             'Jarque-Bera_p_value':jarque_bera_p_value(df['Return']),
-                             'ADF_p_value':adf_p_value(df['Return'])})
-    return Stats_df
+# def compute_stats(df):
+#     Stats_df = pd.DataFrame({'Mean':df['Return'].mean(),
+#                              'STD':df['Return'].std(),
+#                              'Skew':df['Return'].skew(),
+# #                              'Fisher_Kurtosis':kurtosis(df['Return'], fisher=True),
+#                              'Pearson_Kurtosis':kurtosis(df['Return'], fisher=False),
+#                              'Jarque-Bera_p_value':jarque_bera_p_value(df['Return']),
+#                              'ADF_p_value':adf_p_value(df['Return'])})
+#     return Stats_df
 
-def compute_corr_matrix(df, method_name='pearson'):
-     return df.corr(method=method_name)
+# def compute_corr_matrix(df, method_name='pearson'):
+#      return df.corr(method=method_name)
 
 def train_val_test_split(df):
     # set date column as index
