@@ -16,7 +16,8 @@ def load_file(filename):
         return pickle.load(f)
 
 def mean_absolute_percentage_error(y_true, y_pred):
-    y_true[y_true == 0] = 0.000001 # to avoid dividing by 0
+#     y_true[y_true == 0] = 0.000001 # to avoid dividing by 0
+    y_true = y_true[y_true != 0] # to delete when y_true = 0
     return np.mean(np.abs((y_true - y_pred)/y_true))
 
 def theilU(y_true, y_pred):
