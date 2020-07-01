@@ -199,7 +199,7 @@ class Model:
         print("Valid MAE : {:.4f} | Valid MAPE  : {:.4f} | Valid RSME : {:.4f} | Valid Theil-U {:.4f}".format(self.validMAE, self.validMAPE, self.validRMSE, self.validTheilU))
         
         
-    def evaluate(self, dataloader, mu, sigma):
+    def evaluate(self, dataloader, mu=None, sigma=None, min_=None, max_=None):
         
         preds, targets = [], []
         self.model.eval()
@@ -214,8 +214,12 @@ class Model:
                     preds += outputs.numpy().T.tolist()[0]
                 targets += target.numpy().tolist()
         
-        targets = (targets + mu) * sigma
-        preds = (preds + mu) * sigma
+        if mu is not None and sigma is not None:
+            targets = (np.array(targets) + mu) * sigma
+            preds = (np.array(preds) + mu) * sigma
+        if min_ is not None and max_ is not None:
+            targets = np.array(targets) * (max_ - min_) + min_
+            preds = np.array(preds) * (max_ - min_) + min_
 
         self.testRMSE = mean_squared_error(targets, preds)
         self.testMAE = mean_absolute_error(targets, preds)
@@ -254,7 +258,7 @@ class Model:
         
         
     # to retrieve the prediction and the target values as list
-    def predict(self, dataloader, mu, sigma):
+    def predict(self, dataloader, mu=None, sigma=None, min_=None, max_=None):
         preds = []
         self.model.eval()
         with torch.no_grad():
@@ -267,4 +271,9 @@ class Model:
                 else:
                     preds += outputs.numpy().T.tolist()[0]
         
-        return(preds)
+        if mu is not None and sigma is not None:
+            preds = (np.array(preds) + mu) * sigma
+        if min_ is not None and max_ is not None:
+            preds = np.array(preds) * (max_ - min_) + min_
+        
+        return preds
