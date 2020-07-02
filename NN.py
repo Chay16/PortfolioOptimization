@@ -185,12 +185,12 @@ class Model:
                     valid_preds += outputs.numpy().T.tolist()[0]
                 valid_targets += target.numpy().tolist()
         
-        self.trainRMSE = mean_squared_error(train_targets, train_preds)
+        self.trainRMSE = np.sqrt(mean_squared_error(train_targets, train_preds))
         self.trainMAE = mean_absolute_error(train_targets, train_preds)
         self.trainMAPE = mean_absolute_percentage_error(np.array(train_targets), np.array(train_preds))
         self.trainTheilU = theilU(np.array(train_targets), np.array(train_preds))
         
-        self.validRMSE = mean_squared_error(valid_targets, valid_preds)
+        self.validRMSE = np.sqrt(mean_squared_error(valid_targets, valid_preds))
         self.validMAE = mean_absolute_error(valid_targets, valid_preds)
         self.validMAPE = mean_absolute_percentage_error(np.array(valid_targets), np.array(valid_preds))
         self.validTheilU = theilU(np.array(valid_targets), np.array(valid_preds))
@@ -221,7 +221,7 @@ class Model:
             targets = np.array(targets) * (max_ - min_) + min_
             preds = np.array(preds) * (max_ - min_) + min_
 
-        self.testRMSE = mean_squared_error(targets, preds)
+        self.testRMSE = np.sqrt(mean_squared_error(targets, preds))
         self.testMAE = mean_absolute_error(targets, preds)
         self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
         self.testTheilU = theilU(np.array(targets), np.array(preds))
@@ -248,7 +248,7 @@ class Model:
         targets = list( (np.asarray(targets) + mu)* sigma )
         preds = list( (np.asarray(preds) + mu)* sigma )
 
-        self.testRMSE = mean_squared_error(targets, preds)
+        self.testRMSE = np.sqrt(mean_squared_error(targets, preds))
         self.testMAE = mean_absolute_error(targets, preds)
         self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
         self.testTheilU = theilU(np.array(targets), np.array(preds))
