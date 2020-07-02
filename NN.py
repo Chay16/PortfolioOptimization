@@ -195,8 +195,8 @@ class Model:
         self.validMAPE = mean_absolute_percentage_error(np.array(valid_targets), np.array(valid_preds))
         self.validTheilU = theilU(np.array(valid_targets), np.array(valid_preds))
         
-        print("Train MAE : {:.4f} | Train MAPE  : {:.4f} | Train RSME : {:.4f} | Train Theil-U {:.4f}".format(self.trainMAE, self.trainMAPE, self.trainRMSE, self.trainTheilU))
-        print("Valid MAE : {:.4f} | Valid MAPE  : {:.4f} | Valid RSME : {:.4f} | Valid Theil-U {:.4f}".format(self.validMAE, self.validMAPE, self.validRMSE, self.validTheilU))
+        print("Train MAE : {:.4f} | Train MAPE  : {:.4f} | Train RMSE : {:.4f} | Train Theil-U {:.4f}".format(self.trainMAE, self.trainMAPE, self.trainRMSE, self.trainTheilU))
+        print("Valid MAE : {:.4f} | Valid MAPE  : {:.4f} | Valid RMSE : {:.4f} | Valid Theil-U {:.4f}".format(self.validMAE, self.validMAPE, self.validRMSE, self.validTheilU))
         
         
     def evaluate(self, dataloader, mu=None, sigma=None, min_=None, max_=None):
