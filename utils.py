@@ -30,7 +30,7 @@ def theilU(y_true, y_pred):
 
     
 # Convert Dataframe to DataLoader
-def DataFrame2DataLoader(df, features_col, target_col, batch_size=4, normalize=False, mu=None, sigma=None):
+def DataFrame2DataLoader(df, features_col, target_col, batch_size=4, normalize=False, mu=None, sigma=None, shuffle=False):
     tmpdf = df.copy()
     try:
         del tmpdf["Date"]
@@ -43,7 +43,7 @@ def DataFrame2DataLoader(df, features_col, target_col, batch_size=4, normalize=F
     features = tmpdf[features_col]
     
     dataset = TensorDataset(Tensor(np.array(features)), Tensor(np.array(target)))
-    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=False)
+    dataloader = DataLoader(dataset, batch_size=batch_size, shuffle=shuffle)
     
     return dataloader
 
