@@ -229,32 +229,7 @@ class Model:
 
         print("Normalized Test MAE : {:.6f} | Test MAPE  : {:.6f} | Test RMSE : {:.6f} | Test Theil-U {:.6f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
     
-#     # correction_fred
-#     def evaluate_bis(self, dataloader, mu, sigma):
-        
-#         preds, targets = [], []
-#         self.model.eval()
-#         with torch.no_grad():
-#             for features, target in dataloader:
-#                 if self.NNtype == "RNN":
-#                     features = features.view(1, features.size(0), features.size(1))
-#                 outputs = self.model(features)
-#                 if self.NNtype == "PSN":
-#                     preds += outputs.numpy().tolist()
-#                 else:
-#                     preds += outputs.numpy().T.tolist()[0]
-#                 targets += target.numpy().tolist()
-        
-#         targets = list( (np.asarray(targets) + mu)* sigma )
-#         preds = list( (np.asarray(preds) + mu)* sigma )
 
-#         self.testRMSE = np.sqrt(mean_squared_error(targets, preds))
-#         self.testMAE = mean_absolute_error(targets, preds)
-#         self.testMAPE = mean_absolute_percentage_error(np.array(targets), np.array(preds))
-#         self.testTheilU = theilU(np.array(targets), np.array(preds))
-#         self.testPT = PT_test(np.array(targets), np.array(preds))
-
-#         print("Normalized Test MAE : {:.6f} | Test MAPE  : {:.6f} | Test RMSE : {:.6f} | Test Theil-U {:.6f}".format(self.testMAE, self.testMAPE, self.testRMSE, self.testTheilU))
         
         
     # to retrieve the prediction and the target values as list
