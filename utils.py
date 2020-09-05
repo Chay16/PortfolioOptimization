@@ -20,7 +20,7 @@ def mean_absolute_percentage_error(y_true, y_pred):
     y_truebis = np.delete(y_true, zeros)
     y_predbis = np.delete(y_pred, zeros)
 
-    return np.mean(np.abs((y_truebis - y_predbis)/y_truebis))
+    return( 100 * np.mean(np.abs((y_truebis - y_predbis)/y_truebis)) )
 
 def theilU(y_true, y_pred):
     return np.sqrt(np.mean((y_pred - y_true)**2)) / (np.sqrt(np.mean(y_pred**2)) + np.sqrt(np.mean(y_true**2)))
