@@ -19,7 +19,7 @@ names                   = ['DIA'; 'SPY'; 'QQQ'];
 excessReturns           = returns - repmat( riskFreeRate, 1, N );
 excessExpectedReturns   = expectedReturns - repmat( riskFreeRate, 1, N );
 %% Parameters
-riskAversion    = 3; % 3 -> risk seeking 7 -> risk averse
+riskAversion    = 5; % 3 -> risk seeking 7 -> risk averse
 nbRiskAversion  = length( riskAversion );
 
 %% a) date > 01/01/2014
@@ -41,6 +41,10 @@ strategyNames   = { 'Sample Average Excess Return'; ...
                     'NN Average Excess Return DCC'; ...
                     'Sample Average Excess Return (no short-selling) DCC'; ...
                     'NN Average Excess Return (no short-selling) DCC'; ...
+                    'Sample Average Excess Return ADCC'; ...
+                    'NN Average Excess Return ADCC'; ...
+                    'Sample Average Excess Return (no short-selling) ADCC'; ...
+                    'NN Average Excess Return (no short-selling) ADCC'; ...
                     };
 nbStrategies = length( strategyNames );
 
@@ -77,6 +81,7 @@ for t = indStart:T
    rollingWindowSampleCovariance           = cov( excessReturns( indRollingWindowSample, : ), 'omitrows' );
    NNAverageExcessReturn = excessExpectedReturns( t, : )';
    [PARAMETERS,LL,HT,VCV,SCORES,DIAGNOSTICS] = dcc(rmmissing ( excessReturns( indRollingWindowSample, : ) ),[],1,0,1);
+   [PARAMETERSbis,LLbis,HTbis,VCVbis,SCORESbis,DIAGNOSTICSbis] = dcc(rmmissing ( excessReturns( indRollingWindowSample, : ) ),[],1,1,1);
    
    % Compute optimal allocations
     for strategyIndex   = 1:nbStrategies
@@ -123,6 +128,26 @@ for t = indStart:T
                 allocation( allocation < 0 ) = 0;
                 optimalAllocation{ strategyIndex }( t, : )   = allocation;
                 
+            case 'Sample Average Excess Return ADCC'
+                % Allocation of the week using the sample Average Excess Return and DCC
+                optimalAllocation{ strategyIndex }( t, : )   = inv( HTbis(:, :, end) ) * rollingWindowSampleAverageExcessReturns / riskAversion;
+                
+            case 'NN Average Excess Return ADCC'
+                % Allocation of the week using the NN Average Excess Return and DCC
+                optimalAllocation{ strategyIndex }( t, : )   = inv( HTbis(:, :, end) ) * NNAverageExcessReturn / riskAversion;
+            
+            case 'Sample Average Excess Return (no short-selling) ADCC'
+                % sample Average Excess Return (no short-selling)and DCC
+                allocation = inv( HTbis(:, :, end) ) * rollingWindowSampleAverageExcessReturns / riskAversion;
+                allocation( allocation < 0 ) = 0;
+                optimalAllocation{ strategyIndex }( t, : )   = allocation;
+                 
+            case 'NN Average Excess Return (no short-selling) ADCC'
+                % NN Average Excess Return (no short selling) and DCC
+                allocation = inv( HTbis(:, :, end) ) * NNAverageExcessReturn / riskAversion;
+                allocation( allocation < 0 ) = 0;
+                optimalAllocation{ strategyIndex }( t, : )   = allocation;
+                
         end
         
         % Compute portfolio returns
@@ -149,7 +174,7 @@ downside = min(0, R);
 downside (downside == 0 ) = NaN; % replace all 0 by NaN
 downsideVol = sqrt( annualFactor ) * std( downside, 'omitnan');
 
-cumulativeReturn = cumprod( 1 + R, 'omitnan');
+cumulativeReturn = cumprod( 1 + R/100, 'omitnan');
 cumulativeReturn( cumulativeReturn < 0 ) = 0.001;
 
 statisticNames      = { 'Annualized average Excess Returns          '; ...
@@ -165,13 +190,13 @@ for ii = 1:nbStatistics
         case 'Annualized average Excess Returns          '
             statistics  = [statistics, annualFactor * mean( excessR, 'omitnan' )'];
         case 'Annualized volatility                      '
-            statistics  = [statistics, 100 * sqrt( annualFactor ) * std( R , 'omitnan' )'];
+            statistics  = [statistics, sqrt( annualFactor ) * std( R , 'omitnan' )'];
         case 'Annualized Sharpe ratio                    '
             statistics  = [statistics, sqrt( annualFactor ) * mean( excessR,'omitnan' )' ./ std( R, 'omitnan' )'];
         case 'Annualized Sortino ratio                   '
             statistics  = [statistics, sqrt( annualFactor ) * mean( excessR,'omitnan' )' ./ downsideVol'];
         case 'Max drawdown (%)                           '
-            statistics  = [statistics, maxdrawdown(cumulativeReturn)'];
+            statistics  = [statistics, 100 * maxdrawdown(cumulativeReturn)'];
     
     end
     
